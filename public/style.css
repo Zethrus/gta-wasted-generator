@@ -1,0 +1,203 @@
+body {
+  background-color: #212121;
+  color: #fff;
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
+  padding: 2rem 0;
+}
+
+.container {
+  text-align: center;
+  width: 80%;
+  max-width: 900px;
+}
+
+.title {
+  font-family: 'Changa', sans-serif;
+  font-size: 3rem;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  font-size: 1rem;
+  color: #aaa;
+  margin-bottom: 2rem;
+}
+
+.instructions {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-top: 1rem;
+}
+
+
+/* Upload Box */
+.upload-container .upload-area {
+  border: 2px dashed #555;
+  border-radius: 10px;
+  padding: 2rem;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.upload-container .upload-area:hover {
+  background-color: #333;
+}
+
+.upload-content .upload-icon {
+  width: 50px;
+  margin-bottom: 1rem;
+}
+
+.upload-content p {
+  margin: 0.5rem 0;
+}
+
+.select-btn {
+  background-color: #f5f5f5;
+  color: #333;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 1rem;
+  transition: background-color 0.3s;
+}
+
+.select-btn:hover {
+  background-color: #ddd;
+}
+
+.file-support {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 1rem;
+}
+
+/* Editor Box */
+#image-preview-container {
+  position: relative;
+  max-width: 100%;
+  margin: 0 auto;
+  overflow: hidden;
+  /* Ensures banner doesn't go outside */
+  border-radius: 5px;
+}
+
+#preview-image {
+  display: block;
+  max-width: 100%;
+  filter: grayscale(100%);
+}
+
+#draggable-banner {
+  position: absolute;
+  width: 80%;
+  /* Match server-side resizing for accurate preview */
+  left: 10%;
+  /* Center the banner */
+  top: 50%;
+  /* Start in the middle */
+  transform: translateY(-50%);
+  cursor: ns-resize;
+  /* North-South resize cursor indicates vertical movement */
+  user-select: none;
+  /* Prevents text selection while dragging */
+  -webkit-user-drag: none;
+  /* Prevents ghost image on drag */
+}
+
+/* Result Box */
+#result-image {
+  max-width: 100%;
+  border-radius: 5px;
+}
+
+.button-group {
+  margin-top: 1.5rem;
+}
+
+.action-btn {
+  background-color: #c0392b;
+  color: #fff;
+  border: none;
+  padding: 12px 25px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  text-transform: uppercase;
+  text-decoration: none;
+  display: inline-block;
+  margin: 0 10px;
+  transition: background-color 0.3s;
+}
+
+.action-btn:hover {
+  background-color: #a93226;
+}
+
+.action-btn.download {
+  background-color: #e74c3c;
+}
+
+.action-btn.download:hover {
+  background-color: #c0392b;
+}
+
+.view {
+  width: 100%;
+}
+
+/* --- Header & Nav --- */
+header {
+  margin-bottom: 1rem;
+}
+
+header nav a {
+  color: #fff;
+  text-decoration: none;
+  background-color: #333;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background-color 0.2s;
+}
+
+header nav a:hover {
+  background-color: #555;
+}
+
+/* --- Public Checkbox --- */
+.public-checkbox-container {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+#make-public-checkbox {
+  width: 18px;
+  height: 18px;
+}
+
+/* --- Gallery Grid --- */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 15px;
+  margin-top: 2rem;
+}
+
+.gallery-grid img {
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  background-color: #333;
+}

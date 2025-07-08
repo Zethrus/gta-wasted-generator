@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTA Wasted Generator</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1 class="title">GTA WASTED GENERATOR</h1>
+      <nav>
+        <a href="/gallery.html">View Gallery</a>
+      </nav>
+    </header>
+    <p id="subtitle" class="subtitle">Upload your photo and get the iconic "Wasted" effect from Grand Theft Auto</p>
+
+    <div id="upload-box" class="view">
+      <div class="upload-area" id="drop-area">
+        <div class="upload-content">
+          <img src="https://i.imgur.com/gC5yBv3.png" alt="Upload Icon" class="upload-icon">
+          <p><strong>Upload your image</strong></p>
+          <p>Drag and drop your image here or click to browse</p>
+          <button class="select-btn" onclick="document.getElementById('file-input').click()">Select Image</button>
+          <input type="file" id="file-input" accept="image/jpeg, image/png" hidden>
+          <p class="file-support">Supports: JPEG, PNG (max. 5MB)</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="editor-box" class="view" style="display: none;">
+      <div id="image-preview-container">
+        <img id="preview-image" src="" alt="Image preview">
+        <img id="draggable-banner" src="/img/wasted.png" alt="Wasted Banner">
+      </div>
+      <p class="instructions">Click and drag the "Wasted" banner up or down to position it.</p>
+
+      <div class="public-checkbox-container">
+        <input type="checkbox" id="make-public-checkbox">
+        <label for="make-public-checkbox">Make image public in the gallery</label>
+      </div>
+
+      <div class="button-group">
+        <button id="cancel-btn" class="action-btn">Cancel</button>
+        <button id="finalize-btn" class="action-btn download">Finalize Image</button>
+      </div>
+    </div>
+
+    <div id="result-box" class="view" style="display: none;">
+      <img id="result-image" src="" alt="Wasted Image">
+      <div class="button-group">
+        <button id="upload-new-btn" class="action-btn">Upload New Image</button>
+        <a id="download-btn" class="action-btn download" href="" download>Download</a>
+      </div>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
