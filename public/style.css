@@ -441,7 +441,7 @@ footer {
 .social-share-container {
   margin-top: 2rem;
   text-align: center;
-  padding-top: 1.5rem
+  padding-top: 1.5rem;
   color: #ccc;
   border-top: 1px solid #444;
 }
@@ -517,4 +517,4 @@ footer {
   border-radius: 5px;
   color: #ccc;
   width: fit-content;
-  /* Only as wide as the content */}
+}
