@@ -110,6 +110,30 @@ app.post('/api/gallery/:id/like', (req, res) => {
   }
 });
 
+// --- API endpoint to get a single image's data ---
+app.get('/api/gallery/:id', (req, res) => {
+  try {
+    const imageId = parseInt(req.params.id, 10);
+    // Increment the view count every time this data is fetched
+    db.incrementViewCount(imageId);
+    const image = db.getImageById(imageId);
+
+    if (image) {
+      res.json(image);
+    } else {
+      res.status(404).json({ success: false, message: 'Image not found.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
+// --- Route to serve the individual image page ---
+app.get('/gallery/:id', (req, res) => {
+  // We just serve the static HTML file. The data will be loaded by a script on that page.
+  res.sendFile(path.join(__dirname, 'public', 'image.html'));
+});
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

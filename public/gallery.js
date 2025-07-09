@@ -22,6 +22,9 @@ document.addEventListener('DOMContentLoaded', () => {
         galleryStatus.style.display = 'none';
 
         images.forEach(image => {
+          const link = document.createElement('a');
+          link.href = `/gallery/${image.id}`;
+
           // Create a wrapper for the image and its info
           const imageCard = document.createElement('div');
           imageCard.className = 'gallery-card';
@@ -65,7 +68,9 @@ document.addEventListener('DOMContentLoaded', () => {
           // Append elements to the card, and card to the grid
           imageCard.appendChild(imgElement);
           imageCard.appendChild(statsContainer);
-          galleryGrid.appendChild(imageCard);
+
+          link.appendChild(imageCard);
+          galleryGrid.appendChild(link);
         });
       }
     } catch (error) {

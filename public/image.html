@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTA Wasted Generator - Image</title>
+  <link rel="stylesheet" href="/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <header>
+      <h1 class="title">WASTED IMAGE</h1>
+      <nav>
+        <a href="/gallery.html">Back to Gallery</a>
+      </nav>
+    </header>
+
+    <main id="image-display-card" class="content-card" style="display: none;">
+      <img id="single-image" src="" alt="Generated Wasted Image">
+
+      <div class="image-stats-bar">
+        <span>👁️ Views: <span id="view-count">0</span></span>
+        <span>❤️ Likes: <span id="like-count">0</span></span>
+      </div>
+
+      <div class="button-group">
+        <a id="download-btn" class="action-btn download" href="" download>Download</a>
+        <button id="like-btn" class="action-btn">Like ❤️</button>
+      </div>
+
+      <div class="social-share-container">
+        <p>Share on:</p>
+        <div class="social-buttons">
+          <button id="share-twitter-btn" class="social-btn twitter" title="Share on Twitter"></button>
+          <button id="share-facebook-btn" class="social-btn facebook" title="Share on Facebook"></button>
+          <button id="share-reddit-btn" class="social-btn reddit" title="Share on Reddit"></button>
+        </div>
+      </div>
+    </main>
+
+    <p id="loading-status" class="subtitle">Loading image...</p>
+  </div>
+
+  <script src="/image.js"></script>
+</body>
+
+</html>
