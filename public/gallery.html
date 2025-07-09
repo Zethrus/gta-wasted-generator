@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Public Gallery - GTA Wasted Generator</title>
+  <title>GTA Wasted Generator - Gallery</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Changa:wght@700&display=swap" rel="stylesheet">
 </head>
@@ -12,16 +12,22 @@
 <body>
   <div class="container">
     <header>
-      <h1 class="title">PUBLIC GALLERY</h1>
+      <h1 class="title">GALLERY</h1>
       <nav>
         <a href="/">Create Your Own</a>
       </nav>
     </header>
-    <p class="subtitle">Images recently created by the community.</p>
 
-    <div id="gallery-grid" class="gallery-grid">
-      <p id="loading-message">Loading gallery...</p>
-    </div>
+    <main class="content-card">
+      <p id="gallery-status" class="subtitle">Loading gallery...</p>
+
+      <div id="gallery-grid" class="gallery-grid"></div>
+    </main>
+
+    <footer>
+      <p>All generated content is for entertainment purposes.</p>
+      <p>Not affiliated with Rockstar Games.</p>
+    </footer>
   </div>
 
   <script src="gallery.js"></script>

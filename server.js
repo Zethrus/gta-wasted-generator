@@ -49,26 +49,33 @@ app.post('/generate', upload.single('image'), async (req, res) => {
     const outputFileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
     const outputFilePath = path.join(UPLOADS_DIR, outputFileName);
 
-    // Get image metadata to calculate banner position
+    // Get image metadata to calculate dimensions
     const imageMetadata = await sharp(req.file.buffer).metadata();
-    const topPosition = Math.round((parseFloat(bannerTopPercent) / 100) * imageMetadata.height);
 
-    // Composite the image
+    // --- NEW: Resize the banner to match the preview (80% width) ---
+    const resizedBannerBuffer = await sharp(bannerPath)
+      .resize({ width: Math.round(imageMetadata.width * 0.8) }) // Resize to 80% of the base image's width
+      .toBuffer();
+
+    // --- NEW: Calculate correct top and left positions ---
+    const topPosition = Math.round((parseFloat(bannerTopPercent) / 100) * imageMetadata.height);
+    const leftPosition = Math.round(imageMetadata.width * 0.1); // Position 10% from the left to center the 80% banner
+
+    // Composite the image using the RESIZED banner
     await sharp(req.file.buffer)
       .grayscale()
       .composite([{
-        input: bannerPath,
+        input: resizedBannerBuffer, // <-- Use the resized banner
         top: topPosition,
-        left: 0, // Assuming banner spans the width after resize
+        left: leftPosition,      // <-- Use the calculated left position
       }])
       .toFile(outputFilePath);
 
     const finalImagePath = `/uploads/${outputFileName}`;
 
     // --- DATABASE LOGIC ---
-    // If the user checked "Make image public", add its path to the database.
     if (isPublic === 'true') {
-      db.addImageToGallery(finalImagePath); // <-- Use the new DB function
+      db.addImageToGallery(finalImagePath);
     }
 
     res.json({ success: true, filePath: finalImagePath });
