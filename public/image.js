@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Elements
+  // --- Element Selection ---
   const imageDisplayCard = document.getElementById('image-display-card');
   const singleImage = document.getElementById('single-image');
   const viewCountEl = document.getElementById('view-count');
@@ -7,15 +7,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const likeBtn = document.getElementById('like-btn');
   const downloadBtn = document.getElementById('download-btn');
   const loadingStatus = document.getElementById('loading-status');
-  // Social Share Buttons
   const shareTwitterBtn = document.getElementById('share-twitter-btn');
   const shareFacebookBtn = document.getElementById('share-facebook-btn');
   const shareRedditBtn = document.getElementById('share-reddit-btn');
 
-  // Get the image ID from the URL path
+  // --- Get Image ID from URL ---
   const pathParts = window.location.pathname.split('/');
-  const imageId = pathParts[pathParts.length - 1];
+  const imageId = parseInt(pathParts[pathParts.length - 1], 10);
 
+  // --- Like Persistence Helpers (localStorage) ---
+  const getLikedImages = () => {
+    const liked = localStorage.getItem('likedImages');
+    return liked ? JSON.parse(liked) : [];
+  };
+
+  const addLikedImage = (id) => {
+    const liked = getLikedImages();
+    if (!liked.includes(id)) {
+      liked.push(id);
+      localStorage.setItem('likedImages', JSON.stringify(liked));
+    }
+  };
+
+  // --- Main Function to Load Image Data ---
   async function loadImage() {
     if (!imageId) {
       loadingStatus.textContent = 'Invalid image ID.';
@@ -27,14 +41,21 @@ document.addEventListener('DOMContentLoaded', () => {
       if (!response.ok) throw new Error('Image not found.');
 
       const image = await response.json();
+      const likedImages = getLikedImages();
 
-      // Populate the page with the image data
+      // Populate page with image data
       singleImage.src = image.path;
       downloadBtn.href = image.path;
       viewCountEl.textContent = image.views;
       likeCountEl.textContent = image.likes;
 
-      // Show the card and hide loading text
+      // Check if this image has already been liked in this browser
+      if (likedImages.includes(imageId)) {
+        likeBtn.disabled = true;
+        likeBtn.textContent = 'Liked ❤️';
+      }
+
+      // Show the content and hide loading text
       imageDisplayCard.style.display = 'block';
       loadingStatus.style.display = 'none';
 
@@ -44,12 +65,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Event Listener for the Like Button ---
   likeBtn.addEventListener('click', async () => {
+    if (likeBtn.disabled) return;
     try {
-      const response = await fetch(`/api/gallery/${imageId}/like`, { method: 'POST' });
-      if (!response.ok) throw new Error('Failed to submit like.');
-
+      await fetch(`/api/gallery/${imageId}/like`, { method: 'POST' });
       likeCountEl.textContent = parseInt(likeCountEl.textContent) + 1;
+      addLikedImage(imageId); // Save the liked state to localStorage
       likeBtn.disabled = true;
       likeBtn.textContent = 'Liked ❤️';
     } catch (error) {
@@ -57,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // --- NEW: Social Sharing Logic ---
+  // --- Social Sharing Logic ---
   const shareOnSocialMedia = (platformUrl) => {
     if (!singleImage.src) return; // Don't share if there's no image
 
@@ -89,5 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     shareOnSocialMedia('https://www.reddit.com/submit');
   });
 
+  // --- Initial Call to Load the Page ---
   loadImage();
 });

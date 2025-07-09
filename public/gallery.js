@@ -1,18 +1,29 @@
 document.addEventListener('DOMContentLoaded', () => {
+
   const galleryGrid = document.getElementById('gallery-grid');
-  const loadingMessage = document.getElementById('loading-message');
   const galleryStatus = document.getElementById('gallery-status');
 
-  /**
-   * Fetches images from the server and populates the gallery.
-   */
+  // --- NEW: Helper functions for managing liked images in localStorage ---
+  const getLikedImages = () => {
+    const liked = localStorage.getItem('likedImages');
+    return liked ? JSON.parse(liked) : [];
+  };
+
+  const addLikedImage = (id) => {
+    const liked = getLikedImages();
+    if (!liked.includes(id)) {
+      liked.push(id);
+      localStorage.setItem('likedImages', JSON.stringify(liked));
+    }
+  };
+
   async function loadGallery() {
     try {
       const response = await fetch('/gallery-images');
-      if (!response.ok) {
-        throw new Error(`Server responded with status: ${response.status}`);
-      }
+      if (!response.ok) throw new Error(`Server responded with status: ${response.status}`);
+
       const images = await response.json();
+      const likedImages = getLikedImages(); // <-- Get liked images on load
 
       galleryGrid.innerHTML = '';
 
@@ -25,7 +36,6 @@ document.addEventListener('DOMContentLoaded', () => {
           const link = document.createElement('a');
           link.href = `/gallery/${image.id}`;
 
-          // Create a wrapper for the image and its info
           const imageCard = document.createElement('div');
           imageCard.className = 'gallery-card';
 
@@ -34,41 +44,45 @@ document.addEventListener('DOMContentLoaded', () => {
           imgElement.alt = 'A user-generated image with the Wasted banner.';
           imgElement.title = `Created: ${new Date(image.createdAt).toLocaleString()}`;
 
-          // --- NEW: Create stats container for likes ---
           const statsContainer = document.createElement('div');
           statsContainer.className = 'gallery-stats';
 
           const likeButton = document.createElement('button');
           likeButton.className = 'like-btn';
-          likeButton.innerHTML = '❤️'; // Simple heart emoji for the button
+          likeButton.innerHTML = '❤️';
 
           const likeCount = document.createElement('span');
           likeCount.className = 'like-count';
           likeCount.textContent = image.likes;
 
+          // --- NEW: Check if image is already liked ---
+          if (likedImages.includes(image.id)) {
+            likeButton.disabled = true;
+            likeButton.classList.add('liked');
+          }
+
           statsContainer.appendChild(likeButton);
           statsContainer.appendChild(likeCount);
 
-          // --- NEW: Add like button functionality ---
-          likeButton.addEventListener('click', async () => {
-            try {
-              const likeResponse = await fetch(`/api/gallery/${image.id}/like`, { method: 'POST' });
-              if (!likeResponse.ok) throw new Error('Failed to submit like.');
+          likeButton.addEventListener('click', async (e) => {
+            e.preventDefault(); // <-- Prevent link navigation when liking
+            e.stopPropagation();
 
-              // Increment count on the frontend and disable button
+            if (likeButton.disabled) return;
+
+            try {
+              await fetch(`/api/gallery/${image.id}/like`, { method: 'POST' });
               likeCount.textContent = parseInt(likeCount.textContent) + 1;
+              addLikedImage(image.id); // <-- Save the liked state
               likeButton.disabled = true;
               likeButton.classList.add('liked');
-
             } catch (error) {
               console.error('Error liking image:', error);
             }
           });
 
-          // Append elements to the card, and card to the grid
           imageCard.appendChild(imgElement);
           imageCard.appendChild(statsContainer);
-
           link.appendChild(imageCard);
           galleryGrid.appendChild(link);
         });
@@ -76,7 +90,6 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (error) {
       console.error('Failed to load gallery:', error);
       galleryStatus.textContent = 'Could not load the gallery. Please try again later.';
-      galleryStatus.style.color = '#e74c3c';
     }
   }
 
