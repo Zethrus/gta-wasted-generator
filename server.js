@@ -5,7 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 // --- NEW: Import the database module ---
-const db = require('./data/database');
+const db = require('./lib/database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;

@@ -2,8 +2,7 @@
 node_modules
 
 # Local Data - Do not upload to GitHub
-uploads
-database.json
+data
 
 # Environment
 .env
