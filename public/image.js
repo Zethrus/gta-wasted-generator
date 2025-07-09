@@ -7,6 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const likeBtn = document.getElementById('like-btn');
   const downloadBtn = document.getElementById('download-btn');
   const loadingStatus = document.getElementById('loading-status');
+  // Social Share Buttons
+  const shareTwitterBtn = document.getElementById('share-twitter-btn');
+  const shareFacebookBtn = document.getElementById('share-facebook-btn');
+  const shareRedditBtn = document.getElementById('share-reddit-btn');
 
   // Get the image ID from the URL path
   const pathParts = window.location.pathname.split('/');
@@ -53,8 +57,37 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // Social sharing logic (can be adapted from your main script.js)
-  // ...
+  // --- NEW: Social Sharing Logic ---
+  const shareOnSocialMedia = (platformUrl) => {
+    if (!singleImage.src) return; // Don't share if there's no image
+
+    const imageUrl = new URL(singleImage.src, window.location.href).href;
+    const text = encodeURIComponent("Check out this image I made with the GTA Wasted Generator!");
+    let fullUrl;
+
+    if (platformUrl.includes('facebook')) {
+      fullUrl = `${platformUrl}?u=${encodeURIComponent(imageUrl)}`;
+    } else if (platformUrl.includes('reddit')) {
+      const title = encodeURIComponent("GTA Wasted Generator");
+      fullUrl = `${platformUrl}?url=${encodeURIComponent(imageUrl)}&title=${title}`;
+    } else { // Twitter
+      fullUrl = `${platformUrl}?text=${text}&url=${encodeURIComponent(imageUrl)}`;
+    }
+
+    window.open(fullUrl, '_blank', 'width=600,height=400');
+  };
+
+  shareTwitterBtn.addEventListener('click', () => {
+    shareOnSocialMedia('https://twitter.com/intent/tweet');
+  });
+
+  shareFacebookBtn.addEventListener('click', () => {
+    shareOnSocialMedia('https://www.facebook.com/sharer/sharer.php');
+  });
+
+  shareRedditBtn.addEventListener('click', () => {
+    shareOnSocialMedia('https://www.reddit.com/submit');
+  });
 
   loadImage();
 });
