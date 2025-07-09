@@ -1,15 +1,17 @@
 document.addEventListener('DOMContentLoaded', () => {
+
   // Views
   const uploadBox = document.getElementById('upload-box');
   const editorBox = document.getElementById('editor-box');
   const resultBox = document.getElementById('result-box');
 
-  // Upload elements
+  // Elements
   const dropArea = document.getElementById('drop-area');
   const fileInput = document.getElementById('file-input');
+  const loadingOverlay = document.getElementById('loading-overlay');
+  const uploadError = document.getElementById('upload-error');
 
   // Editor elements
-  const previewContainer = document.getElementById('image-preview-container');
   const previewImage = document.getElementById('preview-image');
   const draggableBanner = document.getElementById('draggable-banner');
   const finalizeBtn = document.getElementById('finalize-btn');
@@ -20,10 +22,24 @@ document.addEventListener('DOMContentLoaded', () => {
   const downloadBtn = document.getElementById('download-btn');
   const uploadNewBtn = document.getElementById('upload-new-btn');
 
-  // Subtitle text
-  const subtitle = document.getElementById('subtitle');
+  // Modal elements
+  const errorModal = document.getElementById('error-modal');
+  const modalTitle = document.getElementById('modal-title');
+  const modalMessage = document.getElementById('modal-message');
+  const modalCloseBtn = document.getElementById('modal-close-btn');
 
   let currentFile = null;
+
+  // --- NEW: Custom Error Modal Logic ---
+  const showErrorModal = (title, message) => {
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+    errorModal.style.display = 'flex';
+  };
+
+  modalCloseBtn.addEventListener('click', () => {
+    errorModal.style.display = 'none';
+  });
 
   // --- Page state management ---
   const showView = (view) => {
@@ -41,15 +57,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- File Handling ---
   const handleFile = (file) => {
-    if (file && file.type.startsWith('image/')) {
-      currentFile = file;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        previewImage.src = e.target.result;
-        showView(editorBox);
-      };
-      reader.readAsDataURL(file);
+    uploadError.textContent = ''; // Clear previous errors
+
+    if (!file) return;
+
+    // Validation 1: File Type
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (!allowedTypes.includes(file.type)) {
+      uploadError.textContent = 'Invalid file type. Please use JPEG or PNG.';
+      return;
     }
+
+    // Validation 2: File Size (5MB limit)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      uploadError.textContent = 'File is too large. Maximum size is 5MB.';
+      return;
+    }
+
+    currentFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      previewImage.src = e.target.result;
+      showView(editorBox); // Assuming showView is defined elsewhere
+    };
+    reader.readAsDataURL(file);
   };
 
   fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
@@ -85,51 +117,51 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   cancelBtn.addEventListener('click', () => showView(uploadBox));
+  uploadNewBtn.addEventListener('click', () => showView(uploadBox));
 
   // --- Finalize and Generate ---
   finalizeBtn.addEventListener('click', () => {
     if (!currentFile) return;
 
-    // Find the new checkbox
+    const formData = new FormData();
+    // ... (append form data logic remains the same)
     const isPublicCheckbox = document.getElementById('make-public-checkbox');
-
     const bannerTop = draggableBanner.offsetTop;
     const containerHeight = previewContainer.offsetHeight;
     const bannerTopPercent = (bannerTop / containerHeight) * 100;
-
-    const formData = new FormData();
     formData.append('image', currentFile);
     formData.append('bannerTopPercent', bannerTopPercent);
-    // ✅ This line correctly appends the checkbox value
     formData.append('isPublic', isPublicCheckbox.checked);
 
-    subtitle.textContent = "Generating your image...";
-    finalizeBtn.disabled = true;
-    finalizeBtn.textContent = "Processing...";
+    loadingOverlay.style.display = 'flex';
 
     fetch('/generate', {
       method: 'POST',
       body: formData
     })
-      .then(response => response.json())
+      .then(response => {
+        if (!response.ok) {
+          // If server responds with an error status (4xx, 5xx)
+          throw new Error(`Server error: ${response.statusText}`);
+        }
+        return response.json();
+      })
       .then(data => {
         if (data.success) {
           resultImage.src = data.filePath;
           downloadBtn.href = data.filePath;
           showView(resultBox);
         } else {
-          alert('Image processing failed!');
-          showView(editorBox);
+          // If server responds with success:false
+          throw new Error('Image processing failed on the server.');
         }
       })
       .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred during generation.');
-        showView(editorBox);
+        showErrorModal('Generation Failed', error.message);
       })
       .finally(() => {
-        finalizeBtn.disabled = false;
-        finalizeBtn.textContent = "Finalize Image";
+        loadingOverlay.style.display = 'none';
       });
   });
 

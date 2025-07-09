@@ -28,6 +28,7 @@
           <button class="select-btn" onclick="document.getElementById('file-input').click()">Select Image</button>
           <input type="file" id="file-input" accept="image/jpeg, image/png" hidden>
           <p class="file-support">Supports: JPEG, PNG (max. 5MB)</p>
+          <p id="upload-error" class="upload-error"></p>
         </div>
       </div>
     </div>
@@ -58,6 +59,24 @@
       </div>
     </div>
 
+  </div>
+
+  <div id="result-box" class="view" style="display: none;">
+  </div>
+  
+  </div>
+  
+  <div id="loading-overlay" style="display: none;">
+    <div class="spinner"></div>
+    <p class="loading-text">Processing Image...</p>
+  </div>
+
+  <div id="error-modal" style="display: none;">
+    <div class="modal-content">
+      <h2 id="modal-title">Error</h2>
+      <p id="modal-message">Something went wrong.</p>
+      <button id="modal-close-btn" class="action-btn">Close</button>
+    </div>
   </div>
 
   <script src="script.js"></script>
