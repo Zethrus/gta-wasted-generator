@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewContainer = document.getElementById('image-preview-container');
   const finalizeBtn = document.getElementById('finalize-btn');
   const cancelBtn = document.getElementById('cancel-btn');
+  const copyLinkBtn = document.getElementById('copy-link-btn');
+  const shareTwitterBtn = document.getElementById('share-twitter-btn');
+  const shareFacebookBtn = document.getElementById('share-facebook-btn');
+  const shareRedditBtn = document.getElementById('share-reddit-btn');
 
   // Result elements
   const resultImage = document.getElementById('result-image');
@@ -188,4 +192,48 @@ document.addEventListener('DOMContentLoaded', () => {
     fileInput.value = '';
     showView(uploadBox);
   });
+
+  // --- Copy Link Logic ---
+  copyLinkBtn.addEventListener('click', () => {
+    const imageUrl = resultImage.src;
+    navigator.clipboard.writeText(imageUrl).then(() => {
+      // Provide user feedback
+      const originalText = copyLinkBtn.textContent;
+      copyLinkBtn.textContent = 'Copied!';
+      setTimeout(() => {
+        copyLinkBtn.textContent = originalText;
+      }, 2000); // Revert after 2 seconds
+    }).catch(err => {
+      console.error('Failed to copy link: ', err);
+      showErrorModal('Copy Failed', 'Could not copy link to clipboard.');
+    });
+  });
+
+  // --- Social Sharing Logic ---
+  const shareUrl = (url) => {
+    // The URL of the generated image must be absolute for sharing
+    const imageUrl = new URL(resultImage.src, window.location.href).href;
+    const text = encodeURIComponent("Check out this image I made with the GTA Wasted Generator!");
+    const fullUrl = url + `&text=${text}&url=${encodeURIComponent(imageUrl)}`;
+    window.open(fullUrl, '_blank', 'width=600,height=400');
+  };
+
+  shareTwitterBtn.addEventListener('click', () => {
+    shareUrl('https://twitter.com/intent/tweet?');
+  });
+
+  shareFacebookBtn.addEventListener('click', () => {
+    // Facebook uses a different parameter for the URL
+    const imageUrl = new URL(resultImage.src, window.location.href).href;
+    const fullUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(imageUrl)}`;
+    window.open(fullUrl, '_blank', 'width=600,height=400');
+  });
+
+  shareRedditBtn.addEventListener('click', () => {
+    const imageUrl = new URL(resultImage.src, window.location.href).href;
+    const title = encodeURIComponent("GTA Wasted Generator");
+    const fullUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(imageUrl)}&title=${title}`;
+    window.open(fullUrl, '_blank', 'width=600,height=400');
+  });
+
 });
