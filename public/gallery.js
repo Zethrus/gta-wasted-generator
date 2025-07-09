@@ -8,48 +8,72 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   async function loadGallery() {
     try {
-      // Fetch images from the correct endpoint defined in server.js
       const response = await fetch('/gallery-images');
-
-      // Check if the server responded with an error status (like 404 or 500)
       if (!response.ok) {
         throw new Error(`Server responded with status: ${response.status}`);
       }
-
       const images = await response.json();
 
-      // Clear the "Loading..." message
       galleryGrid.innerHTML = '';
 
       if (images.length === 0) {
         galleryStatus.textContent = 'The gallery is empty. Be the first to add a public image!';
       } else {
-        // Hide the status message if images were found
         galleryStatus.style.display = 'none';
 
-        // Loop through each image object and create an img element for it
         images.forEach(image => {
+          // Create a wrapper for the image and its info
+          const imageCard = document.createElement('div');
+          imageCard.className = 'gallery-card';
+
           const imgElement = document.createElement('img');
           imgElement.src = image.path;
           imgElement.alt = 'A user-generated image with the Wasted banner.';
+          imgElement.title = `Created: ${new Date(image.createdAt).toLocaleString()}`;
 
-          // Add a title with the creation date for a nice hover effect
-          const createdDate = new Date(image.createdAt).toLocaleString();
-          imgElement.title = `Created: ${createdDate}`;
+          // --- NEW: Create stats container for likes ---
+          const statsContainer = document.createElement('div');
+          statsContainer.className = 'gallery-stats';
 
-          galleryGrid.appendChild(imgElement);
+          const likeButton = document.createElement('button');
+          likeButton.className = 'like-btn';
+          likeButton.innerHTML = '❤️'; // Simple heart emoji for the button
+
+          const likeCount = document.createElement('span');
+          likeCount.className = 'like-count';
+          likeCount.textContent = image.likes;
+
+          statsContainer.appendChild(likeButton);
+          statsContainer.appendChild(likeCount);
+
+          // --- NEW: Add like button functionality ---
+          likeButton.addEventListener('click', async () => {
+            try {
+              const likeResponse = await fetch(`/api/gallery/${image.id}/like`, { method: 'POST' });
+              if (!likeResponse.ok) throw new Error('Failed to submit like.');
+
+              // Increment count on the frontend and disable button
+              likeCount.textContent = parseInt(likeCount.textContent) + 1;
+              likeButton.disabled = true;
+              likeButton.classList.add('liked');
+
+            } catch (error) {
+              console.error('Error liking image:', error);
+            }
+          });
+
+          // Append elements to the card, and card to the grid
+          imageCard.appendChild(imgElement);
+          imageCard.appendChild(statsContainer);
+          galleryGrid.appendChild(imageCard);
         });
       }
-
     } catch (error) {
       console.error('Failed to load gallery:', error);
       galleryStatus.textContent = 'Could not load the gallery. Please try again later.';
-      // Make the error message more visible
       galleryStatus.style.color = '#e74c3c';
     }
   }
 
-  // Initial call to load the gallery when the page loads
   loadGallery();
-
 });

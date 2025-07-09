@@ -90,11 +90,23 @@ app.post('/generate', upload.single('image'), async (req, res) => {
 // --- Route to Get Gallery Images ---
 app.get('/gallery-images', (req, res) => {
   try {
-    const images = db.getGalleryImages(); // <-- Use the new DB function
+    const images = db.getGalleryImages();
     res.json(images);
   } catch (error) {
     console.error('Failed to retrieve gallery images:', error);
     res.status(500).json({ success: false, message: 'Could not load gallery.' });
+  }
+});
+
+// --- Route to Like an Image ---
+app.post('/api/gallery/:id/like', (req, res) => {
+  try {
+    const imageId = parseInt(req.params.id, 10);
+    db.likeImage(imageId);
+    res.status(200).json({ success: true });
+  } catch (error) {
+    console.error(`Failed to like image ${req.params.id}:`, error);
+    res.status(500).json({ success: false, message: 'Could not process like.' });
   }
 });
 
