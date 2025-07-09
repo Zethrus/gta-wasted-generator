@@ -17,7 +17,7 @@ const DB_PATH = path.join(dataDir, 'database.json');
 (async () => {
   try {
     // Create the /data/uploads directory if it doesn't exist
-    await fs.mkdir(uploadsDir, { recursive: true });
+    await fs.mkdir(uploadsDir, { recursive: true }); // <-- THE FIX IS HERE
     console.log(`Successfully ensured ${uploadsDir} exists.`);
 
     // Check for database file
