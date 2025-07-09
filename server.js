@@ -13,16 +13,28 @@ const uploadsDir = path.join(dataDir, 'uploads');
 const DB_PATH = path.join(dataDir, 'database.json');
 // ---------------------------------------------
 
-// --- Middleware to ensure database file exists ---
+// --- STARTUP CHECKS: Ensure directories and files exist ---
 (async () => {
   try {
+    // Create the /data/uploads directory if it doesn't exist
+    await fs.mkdir(uploadsDir, { recursive: true });
+    console.log(`Successfully ensured ${uploadsDir} exists.`);
+
+    // Check for database file
     await fs.access(DB_PATH);
-  } catch {
-    // If the file doesn't exist, create it with an empty array
-    await fs.writeFile(DB_PATH, JSON.stringify([]));
+    console.log(`${DB_PATH} already exists.`);
+  } catch (error) {
+    // If fs.access fails, the file doesn't exist, so create it
+    if (error.code === 'ENOENT') {
+      console.log(`${DB_PATH} not found, creating it...`);
+      await fs.writeFile(DB_PATH, JSON.stringify([]));
+    } else {
+      // For any other errors, log them
+      console.error("Error during initial file/dir setup:", error);
+    }
   }
-  next();
-});
+})();
+// --- END STARTUP CHECKS ---
 
 app.use(express.static('public'));
 
@@ -105,6 +117,6 @@ app.post('/generate', upload.single('image'), async (req, res) => {
   }
 });
 
-app.listen(port, () => {
-  console.log(`GTA Wasted Generator listening at http://localhost:${port}`);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`GTA Wasted Generator listening on port ${port}`);
 });
