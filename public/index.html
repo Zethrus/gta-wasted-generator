@@ -20,21 +20,21 @@
     <div class="content-card">
       <p id="subtitle" class="subtitle">Upload your photo and get the iconic "Wasted" effect from Grand Theft Auto</p> 
       <p class="description">This tool allows you to upload any image and apply the classic "Wasted" banner from the GTA series. Perfect for memes, pranks, or just for fun!</p>
-    </div>
+    
 
-    <div id="upload-box" class="view">
-      <div class="upload-area" id="drop-area">
-        <div class="upload-content">
-          <p><strong>Upload your image</strong></p>
-          <p>Drag and drop your image here or click to browse</p>
-          <button class="select-btn" onclick="document.getElementById('file-input').click()">Select Image</button>
-          <input type="file" id="file-input" accept="image/jpeg, image/png" hidden>
-          <p class="file-support">Supports: JPEG, PNG (max. 5MB)</p>
-          <p id="upload-error" class="upload-error"></p>
+      <div id="upload-box" class="view">
+        <div class="upload-area" id="drop-area">
+          <div class="upload-content">
+            <p><strong>Upload your image</strong></p>
+            <p>Drag and drop your image here or click to browse</p>
+            <button class="select-btn" onclick="document.getElementById('file-input').click()">Select Image</button>
+            <input type="file" id="file-input" accept="image/jpeg, image/png" hidden>
+            <p class="file-support">Supports: JPEG, PNG (max. 5MB)</p>
+            <p id="upload-error" class="upload-error"></p>
+          </div>
         </div>
       </div>
     </div>
-
     <div id="editor-box" class="view" style="display: none;">
       <div id="image-preview-container">
         <img id="preview-image" src="" alt="Image preview">
@@ -61,12 +61,6 @@
       </div>
     </div>
 
-  
-
-    <div id="result-box" class="view" style="display: none;">
-    </div>
-    
-    </div>
     
     <div id="loading-overlay" style="display: none;">
       <div class="spinner"></div>

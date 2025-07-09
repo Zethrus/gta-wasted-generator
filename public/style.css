@@ -49,6 +49,12 @@ body {
   margin-top: 1rem;
 }
 
+.description {
+  padding-bottom: 2rem;
+  margin-bottom: 2rem;
+  border-bottom: 1px solid #444;
+  color: #aaa;
+}
 
 /* Upload Box */
 .upload-area {
@@ -78,15 +84,12 @@ body {
 }
 
 .upload-container .upload-area {
+  background-color: #333;
   border: 2px dashed #555;
   border-radius: 10px;
   padding: 2rem;
   cursor: pointer;
   transition: background-color 0.3s;
-}
-
-.upload-container .upload-area:hover {
-  background-color: #333;
 }
 
 .upload-content {
@@ -254,6 +257,12 @@ header nav a {
 header nav a:hover {
   background-color: #fff;
   color: #111;
+}
+
+footer {
+  margin-top: 3rem;
+  color: #666;
+  font-size: 0.8rem;
 }
 
 /* --- Public Checkbox --- */

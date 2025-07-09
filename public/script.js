@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Editor elements
   const previewImage = document.getElementById('preview-image');
   const draggableBanner = document.getElementById('draggable-banner');
+  const previewContainer = document.getElementById('image-preview-container');
   const finalizeBtn = document.getElementById('finalize-btn');
   const cancelBtn = document.getElementById('cancel-btn');
 
