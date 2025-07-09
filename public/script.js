@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file-input');
   const loadingOverlay = document.getElementById('loading-overlay');
   const uploadError = document.getElementById('upload-error');
+  const subtitle = document.getElementById('subtitle'); 
 
   // Editor elements
   const previewImage = document.getElementById('preview-image');
@@ -117,7 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   cancelBtn.addEventListener('click', () => showView(uploadBox));
-  uploadNewBtn.addEventListener('click', () => showView(uploadBox));
 
   // --- Finalize and Generate ---
   finalizeBtn.addEventListener('click', () => {
