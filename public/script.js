@@ -89,7 +89,22 @@ document.addEventListener('DOMContentLoaded', () => {
   dropArea.addEventListener('dragover', (e) => e.preventDefault());
   dropArea.addEventListener('drop', (e) => {
     e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.remove('is-dragging');
     handleFile(e.dataTransfer.files[0]);
+  });
+
+  // --- Active Drag State Logic ---
+  dropArea.addEventListener('dragenter', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.add('is-dragging');
+  });
+
+  dropArea.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dropArea.classList.remove('is-dragging');
   });
 
   // --- Editor Logic ---

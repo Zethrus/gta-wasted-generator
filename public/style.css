@@ -24,6 +24,7 @@ body {
   padding: 2rem;
   backdrop-filter: blur(5px);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  animation: fadeIn 0.8s ease-in-out;
 }
 
 .title {
@@ -51,16 +52,29 @@ body {
 
 /* Upload Box */
 .upload-area {
+  position: relative;
+  /* Needed for z-index on content */
   border: 2px dashed #777;
   border-radius: 10px;
   padding: 2rem;
   cursor: pointer;
   transition: background-color 0.3s, border-color 0.3s;
+  
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23444' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'/%3e%3cpolyline points='17 8 12 3 7 8'/%3e%3cline x1='12' y1='3' x2='12' y2='15'/%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 80px 80px;
 }
 
 .upload-area:hover {
   background-color: rgba(255, 255, 255, 0.05);
   border-color: #c0392b;
+}
+
+.upload-area.is-dragging {
+  border-style: solid;
+  border-color: #e74c3c;
+  background-color: rgba(231, 76, 60, 0.1);
 }
 
 .upload-container .upload-area {
@@ -73,6 +87,11 @@ body {
 
 .upload-container .upload-area:hover {
   background-color: #333;
+}
+
+.upload-content {
+  position: relative;
+  z-index: 2;
 }
 
 .upload-content .upload-icon {
@@ -97,11 +116,38 @@ body {
   text-transform: uppercase;
   margin-top: 1rem;
   transition: background-color 0.3s, transform 0.2s;
+  animation: pulse 2s infinite;
 }
 
 .select-btn:hover {
   background-color: #e74c3c;
   transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(231, 76, 60, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(231, 76, 60, 0);
+  }
 }
 
 .file-support {
@@ -190,6 +236,9 @@ body {
 /* --- Header & Nav --- */
 header {
   margin-bottom: 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 header nav a {
