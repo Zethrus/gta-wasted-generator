@@ -6,10 +6,15 @@ const fs = require('fs/promises'); // Use the promise-based version of fs
 
 const app = express();
 const port = process.env.PORT || 8080;
-const DB_PATH = path.join(__dirname, 'database.json');
+
+// --- CORRECT PATH CONFIGURATION FOR FLY.IO ---
+const dataDir = '/data'; // This is the persistent volume on Fly.io
+const uploadsDir = path.join(dataDir, 'uploads');
+const DB_PATH = path.join(dataDir, 'database.json');
+// ---------------------------------------------
 
 // --- Middleware to ensure database file exists ---
-app.use(async (req, res, next) => {
+(async () => {
   try {
     await fs.access(DB_PATH);
   } catch {
@@ -24,7 +29,6 @@ app.use(express.static('public'));
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-const uploadsDir = path.join(__dirname, 'uploads');
 // This logic can be simplified since we're using promises now
 (async () => {
   try {
