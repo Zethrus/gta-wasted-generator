@@ -1,0 +1,29 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches:
+      - main # Or whatever your primary branch is
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_PRIVATE_KEY }}
+          script: |
+            # Navigate to the app directory
+            cd /opt/app
+
+            # Pull the latest changes from the main branch
+            git pull origin main
+
+            # Install/update dependencies
+            npm install --production
+
+            # Reload the app with PM2 for zero-downtime update
+            pm2 reload gta-wasted-generator
