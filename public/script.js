@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const previewImage = document.getElementById('preview-image');
   const draggableBanner = document.getElementById('draggable-banner');
   const previewContainer = document.getElementById('image-preview-container');
-  const sizeSlider = document.getElementById('size-slider'); // Get the new slider
+  const sizeSlider = document.getElementById('size-slider');
   const finalizeBtn = document.getElementById('finalize-btn');
   const cancelBtn = document.getElementById('cancel-btn');
   const copyLinkBtn = document.getElementById('copy-link-btn');
@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalCloseBtn = document.getElementById('modal-close-btn');
 
   let currentFile = null;
+  let isDragging = false; // Moved to a higher scope for shared access
 
   // --- Custom Error Modal Logic ---
   const showErrorModal = (title, message) => {
@@ -80,7 +81,6 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // Reset banner and slider to default state when a new file is loaded
     draggableBanner.style.width = '80%';
     draggableBanner.style.left = '10%';
     draggableBanner.style.top = '50%';
@@ -120,20 +120,25 @@ document.addEventListener('DOMContentLoaded', () => {
     dropArea.classList.remove('is-dragging');
   });
 
-  // --- Editor Logic ---
-  let isDragging = false;
-  draggableBanner.addEventListener('mousedown', (e) => {
+  // --- UPDATED Editor Logic for Mouse and Touch ---
+  const getClientY = (e) => {
+    // Return touch coordinate if it exists, otherwise return mouse coordinate
+    return e.touches ? e.touches[0].clientY : e.clientY;
+  };
+
+  const dragStart = (e) => {
     e.preventDefault();
     isDragging = true;
-  });
+  };
 
-  document.addEventListener('mouseup', () => isDragging = false);
-  document.addEventListener('mousemove', (e) => {
+  const dragMove = (e) => {
     if (!isDragging) return;
+    // Prevent the page from scrolling on mobile while dragging the banner
     e.preventDefault();
 
+    const clientY = getClientY(e);
     const containerRect = previewContainer.getBoundingClientRect();
-    let newY = e.clientY - containerRect.top;
+    let newY = clientY - containerRect.top;
 
     const bannerHeight = draggableBanner.offsetHeight;
     if (newY < 0) newY = 0;
@@ -141,9 +146,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     draggableBanner.style.top = `${newY}px`;
     draggableBanner.style.transform = 'translateY(0)';
-  });
+  };
 
-  // --- NEW: Slider Logic ---
+  const dragEnd = () => {
+    isDragging = false;
+  };
+
+  // Listen for both mouse and touch events
+  draggableBanner.addEventListener('mousedown', dragStart);
+  document.addEventListener('mousemove', dragMove);
+  document.addEventListener('mouseup', dragEnd);
+
+  draggableBanner.addEventListener('touchstart', dragStart, { passive: true });
+  document.addEventListener('touchmove', dragMove, { passive: false }); // passive:false is needed to allow preventDefault
+  document.addEventListener('touchend', dragEnd);
+
+  // --- Slider Logic ---
   if (sizeSlider) {
     sizeSlider.addEventListener('input', (e) => {
       const newWidth = e.target.value;
@@ -167,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('image', currentFile);
     formData.append('bannerTopPercent', bannerTopPercent);
     formData.append('isPublic', isPublicCheckbox.checked);
-    // Append the banner width from the slider
     if (sizeSlider) {
       formData.append('bannerWidthPercent', sizeSlider.value);
     }
@@ -188,7 +205,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           resultImage.src = data.filePath;
           downloadBtn.href = data.filePath;
-          // Set social share links with the new final image path
           const finalUrl = new URL(data.filePath, window.location.href).href;
           copyLinkBtn.setAttribute('data-url', finalUrl);
           shareTwitterBtn.setAttribute('data-url', finalUrl);
@@ -207,7 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingOverlay.style.display = 'none';
       });
   });
-
 
   // --- Result Logic ---
   uploadNewBtn.addEventListener('click', () => {
