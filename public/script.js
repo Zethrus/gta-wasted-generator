@@ -75,9 +75,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Validation 2: File Size (5MB limit)
-    const maxSize = 5 * 1024 * 1024;
+    const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
-      uploadError.textContent = 'File is too large. Maximum size is 5MB.';
+      uploadError.textContent = 'File is too large. Maximum size is 10MB.';
       return;
     }
 
