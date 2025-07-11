@@ -7,6 +7,9 @@ const fs = require('fs');
 // --- NEW: Import the database module ---
 const db = require('./lib/database');
 
+const { SitemapStream, streamToPromise } = require('sitemap');
+const { Readable } = require('stream');
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -137,6 +140,38 @@ app.get('/gallery/:id', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'image.html'));
 });
 
+// --- Route to Generate Sitemap ---
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const links = [
+      { url: '/', changefreq: 'weekly', priority: 1.0 },
+      { url: '/gallery', changefreq: 'daily', priority: 0.8 }
+    ];
+
+    // Get all public image IDs from your database
+    const images = db.getGalleryImages(); // Assuming this returns all public images
+    images.forEach(image => {
+      links.push({
+        url: `/gallery/${image.id}`,
+        changefreq: 'weekly',
+        priority: 0.6
+      });
+    });
+
+    const stream = new SitemapStream({ hostname: 'https://wastedgenerator.com' });
+    res.header('Content-Type', 'application/xml');
+
+    const xml = await streamToPromise(Readable.from(links).pipe(stream)).then((data) =>
+      data.toString()
+    );
+    res.send(xml);
+  } catch (error) {
+    console.error(error);
+    res.status(500).end();
+  }
+});
+
+// --- Start the server ---
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
