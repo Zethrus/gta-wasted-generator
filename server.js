@@ -44,7 +44,7 @@ app.post('/generate', upload.single('image'), async (req, res) => {
   }
 
   try {
-    const { bannerTopPercent, isPublic } = req.body;
+    const { bannerTopPercent, isPublic, bannerWidthPercent } = req.body;
     const bannerPath = path.join(__dirname, 'public', 'img', 'wasted.png');
     const outputFileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, '-')}`;
     const outputFilePath = path.join(UPLOADS_DIR, outputFileName);
@@ -52,14 +52,17 @@ app.post('/generate', upload.single('image'), async (req, res) => {
     // Get image metadata to calculate dimensions
     const imageMetadata = await sharp(req.file.buffer).metadata();
 
-    // --- NEW: Resize the banner to match the preview (80% width) ---
+    // Use the new bannerWidthPercent (defaulting to 80 if not provided)
+    const finalBannerWidth = Math.round(imageMetadata.width * (parseFloat(bannerWidthPercent || 80) / 100));
+
     const resizedBannerBuffer = await sharp(bannerPath)
-      .resize({ width: Math.round(imageMetadata.width * 0.8) }) // Resize to 80% of the base image's width
+      .resize({ width: finalBannerWidth }) // Use the dynamic width
       .toBuffer();
 
-    // --- NEW: Calculate correct top and left positions ---
     const topPosition = Math.round((parseFloat(bannerTopPercent) / 100) * imageMetadata.height);
-    const leftPosition = Math.round(imageMetadata.width * 0.1); // Position 10% from the left to center the 80% banner
+    const resizedBannerMetadata = await sharp(resizedBannerBuffer).metadata();
+    // This calculation now correctly centers the dynamically-sized banner
+    const leftPosition = Math.round((imageMetadata.width - resizedBannerMetadata.width) / 2);
 
     // Composite the image using the RESIZED banner
     await sharp(req.file.buffer)

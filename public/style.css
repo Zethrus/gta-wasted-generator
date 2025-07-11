@@ -518,3 +518,22 @@ footer {
   color: #ccc;
   width: fit-content;
 }
+
+.editor-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #ccc;
+}
+
+#size-slider {
+  cursor: pointer;
+}

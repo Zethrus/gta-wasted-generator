@@ -10,12 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('file-input');
   const loadingOverlay = document.getElementById('loading-overlay');
   const uploadError = document.getElementById('upload-error');
-  const subtitle = document.getElementById('subtitle'); 
+  const subtitle = document.getElementById('subtitle');
 
   // Editor elements
   const previewImage = document.getElementById('preview-image');
   const draggableBanner = document.getElementById('draggable-banner');
   const previewContainer = document.getElementById('image-preview-container');
+  const sizeSlider = document.getElementById('size-slider'); // Get the new slider
   const finalizeBtn = document.getElementById('finalize-btn');
   const cancelBtn = document.getElementById('cancel-btn');
   const copyLinkBtn = document.getElementById('copy-link-btn');
@@ -36,7 +37,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentFile = null;
 
-  // --- NEW: Custom Error Modal Logic ---
+  // --- Custom Error Modal Logic ---
   const showErrorModal = (title, message) => {
     modalTitle.textContent = title;
     modalMessage.textContent = message;
@@ -63,29 +64,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // --- File Handling ---
   const handleFile = (file) => {
-    uploadError.textContent = ''; // Clear previous errors
+    uploadError.textContent = '';
 
     if (!file) return;
 
-    // Validation 1: File Type
     const allowedTypes = ['image/jpeg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
       uploadError.textContent = 'Invalid file type. Please use JPEG or PNG.';
       return;
     }
 
-    // Validation 2: File Size (5MB limit)
     const maxSize = 10 * 1024 * 1024;
     if (file.size > maxSize) {
       uploadError.textContent = 'File is too large. Maximum size is 10MB.';
       return;
     }
 
+    // Reset banner and slider to default state when a new file is loaded
+    draggableBanner.style.width = '80%';
+    draggableBanner.style.left = '10%';
+    draggableBanner.style.top = '50%';
+    draggableBanner.style.transform = 'translateY(-50%)';
+    if (sizeSlider) {
+      sizeSlider.value = 80;
+    }
+
     currentFile = file;
     const reader = new FileReader();
     reader.onload = (e) => {
       previewImage.src = e.target.result;
-      showView(editorBox); // Assuming showView is defined elsewhere
+      showView(editorBox);
     };
     reader.readAsDataURL(file);
   };
@@ -125,17 +133,24 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const containerRect = previewContainer.getBoundingClientRect();
-    // Calculate mouse Y position relative to the container, from 0 to container height
     let newY = e.clientY - containerRect.top;
 
-    // Constrain the banner within the container
     const bannerHeight = draggableBanner.offsetHeight;
     if (newY < 0) newY = 0;
     if (newY > containerRect.height - bannerHeight) newY = containerRect.height - bannerHeight;
 
     draggableBanner.style.top = `${newY}px`;
-    draggableBanner.style.transform = 'translateY(0)'; // Override centered transform
+    draggableBanner.style.transform = 'translateY(0)';
   });
+
+  // --- NEW: Slider Logic ---
+  if (sizeSlider) {
+    sizeSlider.addEventListener('input', (e) => {
+      const newWidth = e.target.value;
+      draggableBanner.style.width = `${newWidth}%`;
+      draggableBanner.style.left = `${(100 - newWidth) / 2}%`;
+    });
+  }
 
   cancelBtn.addEventListener('click', () => showView(uploadBox));
 
@@ -144,14 +159,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!currentFile) return;
 
     const formData = new FormData();
-    // ... (append form data logic remains the same)
     const isPublicCheckbox = document.getElementById('make-public-checkbox');
     const bannerTop = draggableBanner.offsetTop;
     const containerHeight = previewContainer.offsetHeight;
     const bannerTopPercent = (bannerTop / containerHeight) * 100;
+
     formData.append('image', currentFile);
     formData.append('bannerTopPercent', bannerTopPercent);
     formData.append('isPublic', isPublicCheckbox.checked);
+    // Append the banner width from the slider
+    if (sizeSlider) {
+      formData.append('bannerWidthPercent', sizeSlider.value);
+    }
 
     loadingOverlay.style.display = 'flex';
 
@@ -161,7 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
     })
       .then(response => {
         if (!response.ok) {
-          // If server responds with an error status (4xx, 5xx)
           throw new Error(`Server error: ${response.statusText}`);
         }
         return response.json();
@@ -170,10 +188,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data.success) {
           resultImage.src = data.filePath;
           downloadBtn.href = data.filePath;
+          // Set social share links with the new final image path
+          const finalUrl = new URL(data.filePath, window.location.href).href;
+          copyLinkBtn.setAttribute('data-url', finalUrl);
+          shareTwitterBtn.setAttribute('data-url', finalUrl);
+          shareFacebookBtn.setAttribute('data-url', finalUrl);
+          shareRedditBtn.setAttribute('data-url', finalUrl);
           showView(resultBox);
         } else {
-          // If server responds with success:false
-          throw new Error('Image processing failed on the server.');
+          throw new Error(data.message || 'Image processing failed on the server.');
         }
       })
       .catch(error => {
@@ -194,15 +217,14 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Copy Link Logic ---
-  copyLinkBtn.addEventListener('click', () => {
-    const imageUrl = resultImage.src;
+  copyLinkBtn.addEventListener('click', (e) => {
+    const imageUrl = e.currentTarget.getAttribute('data-url');
     navigator.clipboard.writeText(imageUrl).then(() => {
-      // Provide user feedback
       const originalText = copyLinkBtn.textContent;
       copyLinkBtn.textContent = 'Copied!';
       setTimeout(() => {
         copyLinkBtn.textContent = originalText;
-      }, 2000); // Revert after 2 seconds
+      }, 2000);
     }).catch(err => {
       console.error('Failed to copy link: ', err);
       showErrorModal('Copy Failed', 'Could not copy link to clipboard.');
@@ -210,30 +232,27 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // --- Social Sharing Logic ---
-  const shareUrl = (url) => {
-    // The URL of the generated image must be absolute for sharing
-    const imageUrl = new URL(resultImage.src, window.location.href).href;
+  const shareUrl = (shareServiceUrl, imageUrl) => {
     const text = encodeURIComponent("Check out this image I made with the GTA Wasted Generator!");
-    const fullUrl = url + `&text=${text}&url=${encodeURIComponent(imageUrl)}`;
+    const fullUrl = shareServiceUrl + `&text=${text}&url=${encodeURIComponent(imageUrl)}`;
     window.open(fullUrl, '_blank', 'width=600,height=400');
   };
 
-  shareTwitterBtn.addEventListener('click', () => {
-    shareUrl('https://twitter.com/intent/tweet?');
+  shareTwitterBtn.addEventListener('click', (e) => {
+    const imageUrl = e.currentTarget.getAttribute('data-url');
+    shareUrl('https://twitter.com/intent/tweet?', imageUrl);
   });
 
-  shareFacebookBtn.addEventListener('click', () => {
-    // Facebook uses a different parameter for the URL
-    const imageUrl = new URL(resultImage.src, window.location.href).href;
+  shareFacebookBtn.addEventListener('click', (e) => {
+    const imageUrl = e.currentTarget.getAttribute('data-url');
     const fullUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(imageUrl)}`;
     window.open(fullUrl, '_blank', 'width=600,height=400');
   });
 
-  shareRedditBtn.addEventListener('click', () => {
-    const imageUrl = new URL(resultImage.src, window.location.href).href;
+  shareRedditBtn.addEventListener('click', (e) => {
+    const imageUrl = e.currentTarget.getAttribute('data-url');
     const title = encodeURIComponent("GTA Wasted Generator");
     const fullUrl = `https://www.reddit.com/submit?url=${encodeURIComponent(imageUrl)}&title=${title}`;
     window.open(fullUrl, '_blank', 'width=600,height=400');
   });
-
 });
